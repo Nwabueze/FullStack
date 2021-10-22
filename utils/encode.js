@@ -101,11 +101,22 @@ const decodeStringToNumbers = (str) => {
     return s;
 }
 
+
+/**
+ * 
+ * @param {string} str String to be encoded
+ * @returns An encoded string
+ */
 const getEncodedStringValue = (str) => {
     const codeInt = stringToInt(str);
     return encodeNumberStr(codeInt);
 }
 
+/**
+ * 
+ * @param {string} encodedStr String previously encoded with getEncodedStringValue
+ * @returns A plain text corresponding to the original string
+ */
 const recoverEncodedStringValue = (encodedStr) => {
     const codeInt = decodeStringToNumbers(encodedStr);
     return recoverString(codeInt);
