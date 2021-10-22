@@ -23,15 +23,15 @@ router.get('/:value/:password', async (req, res) => {
         const filter = {name: 1, email: 1, phone: 1, password: 1, interests: 1, profile_photo: 1, cover_photo: 1, _id: 0};
         let doc = await User.findOne(fieldset, filter);
 
-        if(doc.email){
+        if(doc != null){
             if(compareSync(password, doc.password)){
                 delete doc.password;
                 res.json({status: true, ...doc});
             }else{
-                res.json({status: false, reason: "incorrect password"});
+                res.json({status: false, reason: "incorrect user or password"});
             }
         }else{
-            res.json({status: false, reason: "document not found"});
+            res.json({status: false, reason: "We couldn't find this record"});
         }
     }else{
         res.json({ status: false });

@@ -11,10 +11,10 @@ router.use(express.static('client'));
 router.use(express.json());
 
 // Verify the email address
-router.get('/:email', async (req, res) => {
+router.post('/email/:email', async (req, res) => {
     const encodedEmail = req.params.email;
     console.log(encodedEmail);
-    const User = config(req.hostname);
+    const Users = config(req.hostname);
     if (!req.params.email) {
         res.json({ status: false });
     } else {
@@ -22,22 +22,41 @@ router.get('/:email', async (req, res) => {
         let email = recoverEncodedStringValue(encodedEmail);
         
         // If any document was updated, email is valid.
-        let update = User.updateOne({ "email": email }, { $set:{ "valid_email": true } });
-        res.json({ status: update.modifiedCount });
-        return;
+        let update = await Users.updateOne({ email: email }, { $set: { "valid_email": true } });
+        res.json({ status: update.modifiedCount ? true : false });
     }
 });
 
-router.post('/otp/:otp', (req, res) => {
+router.post('/otp/:otp', async (req, res) => {
 
-    const ck = cookie.parse(req.headers.cookie || "");
+    const ck = cookie.parse(req.headers.cookie || {});
+    let user = {};
     // OTP encoded was passed to cookie, no need to save to database
-    const User = config(req.hostname);
-    if (ck.user.otp2) {
-        const otp = recoverEncodedStringValue(ck.user.otp2);
-        let update = User.updateOne({ email: ck.user.email }, { $set: {valid_otp: true} });
-        res.json({ status: update.modifiedCount ? true : false });
+    const Users = config(req.hostname);
+    if(ck.hasOwnProperty("user")){
+        user = JSON.parse(ck.user);
+    }
+    
+    if(Object.keys(user).length) {
+        if(!user.hasOwnProperty("otp")){
+            res.json({ status: false });
+        }
+        const { otp, email } = user;
+        const OTP2 = recoverEncodedStringValue(otp);
+        //console.log(`${req.params.otp}:${OTP2}`);
+        let match = req.params.otp === OTP2;
+        
+        let update = match ? 
+        await Users.updateOne({ email: email }, { $set: {valid_phone: true} }) :
+        { modifiedCount: 0 };
+        
+        if(update.modifiedCount){
+            res.json({ status: true });
+        }else{
+            res.json({status: false});
+        }
     }else{
+        console.log(user.otp);
         res.json({status: false});
     }
 });

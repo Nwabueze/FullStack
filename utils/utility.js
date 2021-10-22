@@ -65,7 +65,7 @@ const resetLink = async (reciever, link, mailID) => {
             "Name": ""
           }
         ],
-        "Subject": "Verify Your Email Address",
+        "Subject": "Password Reset",
         "TextPart": `Click ${link} to reset your password`,
         "HTMLPart": `<h3>Password reset link
         <br />
@@ -78,7 +78,7 @@ const resetLink = async (reciever, link, mailID) => {
   })
   request
     .then((result) => {
-      //console.log(result.body);
+      console.log(result.body);
       return true;
     })
     .catch((err) => {
